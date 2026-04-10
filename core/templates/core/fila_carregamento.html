@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fila de Carregamento de Etanol</title>
+    <style>
+        :root {
+            --bg: #f2f5f8;
+            --card: #ffffff;
+            --line: #d6dde6;
+            --text: #102235;
+            --title-dark: #073b4c;
+            --title-mid: #0f6c89;
+            --title-soft: #31a8c7;
+            --primary: #0e7490;
+            --primary-dark: #0b556a;
+            --secondary: #334155;
+            --secondary-dark: #1f2937;
+            --status-finalizado: #d1fae5;
+            --status-carregando: #fef3c7;
+            --status-patio: #e0ecff;
+            --status-finalizado-border: #10b981;
+            --status-carregando-border: #f59e0b;
+            --status-patio-border: #3b82f6;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Bahnschrift", "Trebuchet MS", "Segoe UI", sans-serif;
+            background:
+                radial-gradient(circle at 0% 0%, #dff4f8 0%, transparent 35%),
+                radial-gradient(circle at 100% 100%, #e9ecff 0%, transparent 30%),
+                var(--bg);
+            color: var(--text);
+        }
+
+        .container {
+            width: min(1280px, 95%);
+            margin: 24px auto;
+            display: grid;
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 18px;
+            box-shadow: 0 10px 26px rgba(15, 35, 56, 0.08);
+        }
+
+        h1 {
+            margin: 0;
+            padding: 12px 14px;
+            border-radius: 12px;
+            background: linear-gradient(120deg, var(--title-dark) 0%, var(--title-mid) 52%, var(--title-soft) 100%);
+            color: #f0fbff;
+            text-align: center;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            letter-spacing: 0.02em;
+        }
+
+        h2 {
+            margin: 0 0 12px;
+            color: #0f3a55;
+            letter-spacing: 0.02em;
+        }
+
+        .messages {
+            margin: 12px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .messages li {
+            background: #e8fff3;
+            border: 1px solid #8dd8b6;
+            color: #0f5132;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #1f3d56;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            padding: 9px 10px;
+            border: 1px solid #b9c8d8;
+            border-radius: 8px;
+            outline: none;
+            background: #fbfdff;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.18);
+        }
+
+        .button-row {
+            margin-top: 14px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 14px rgba(14, 116, 144, 0.26);
+            transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 16px rgba(11, 85, 106, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 120ms ease, transform 120ms ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-small {
+            padding: 6px 10px;
+            font-size: 0.82rem;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .search-box {
+            min-width: 320px;
+            flex: 1;
+        }
+
+        .table-wrap { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 1180px;
+            border: 1px solid #d4dce6;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        thead th {
+            background: linear-gradient(180deg, #124e63 0%, #0f3f52 100%);
+            color: #effbff;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            padding: 11px 8px;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        thead th a {
+            color: inherit;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+        }
+
+        thead th a:hover {
+            text-decoration: underline;
+        }
+
+        tbody td {
+            border-right: 1px solid #d4dce6;
+            border-top: 1px solid #d4dce6;
+            padding: 9px 8px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        tbody tr.status-finalizado {
+            background: var(--status-finalizado);
+            box-shadow: inset 4px 0 0 var(--status-finalizado-border);
+        }
+
+        tbody tr.status-carregando {
+            background: var(--status-carregando);
+            box-shadow: inset 4px 0 0 var(--status-carregando-border);
+        }
+
+        tbody tr.status-patio {
+            background: var(--status-patio);
+            box-shadow: inset 4px 0 0 var(--status-patio-border);
+        }
+
+        tbody tr:hover { filter: brightness(0.98) saturate(1.04); }
+
+        .left { text-align: left; }
+
+        .errorlist {
+            color: #991b1b;
+            margin: 4px 0 0;
+            padding-left: 16px;
+            font-size: 0.85rem;
+        }
+
+        .pagination {
+            margin-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-links {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .page-link {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #c8d4e2;
+            text-decoration: none;
+            color: #12344c;
+            background: #f8fbff;
+            font-weight: 600;
+        }
+
+        .page-link.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .page-info {
+            font-size: 0.9rem;
+            color: #2a4b66;
+            font-weight: 600;
+        }
+
+        @media (max-width: 760px) {
+            .container { width: min(1280px, 98%); }
+            .card { padding: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <section class="card">
+            <h1>Lista de Carregamento de Etanol</h1>
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </section>
+
+        <section class="card">
+            <h2>{% if carregamento_em_edicao %}Editar Registro{% else %}Novo Cadastro{% endif %}</h2>
+            <form method="post" action="{% if carregamento_em_edicao %}{% url 'editar_carregamento' carregamento_em_edicao.id %}?{{ query_string }}{% else %}{% url 'fila_carregamento' %}{% endif %}" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="status_filtro" value="{{ status_filtro }}">
+                <input type="hidden" name="busca" value="{{ busca }}">
+                <input type="hidden" name="sort_by" value="{{ sort_by }}">
+                <input type="hidden" name="sort_dir" value="{{ sort_dir }}">
+                <input type="hidden" name="per_page" value="{{ per_page }}">
+                <input type="hidden" name="page" value="{{ page_obj.number }}">
+                <div class="form-grid">
+                    {% for field in form %}
+                        <div class="field">
+                            <label for="{{ field.id_for_label }}">{{ field.label|title }}</label>
+                            {{ field }}
+                            {{ field.errors }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="button-row">
+                    {% if carregamento_em_edicao %}
+                        <a class="btn-secondary" href="{% url 'fila_carregamento' %}?{{ query_string }}">Cancelar</a>
+                        <button class="btn" type="submit">Atualizar Registro</button>
+                    {% else %}
+                        <button class="btn" type="submit">Salvar na Fila</button>
+                    {% endif %}
+                </div>
+            </form>
+        </section>
+
+        <section class="card table-wrap">
+            <form method="get" class="filter-row">
+                <div class="field search-box">
+                    <label for="q">Busca na Grade</label>
+                    <input id="q" name="q" type="text" value="{{ busca }}" placeholder="Ex: nome, placa, transportadora, litragem...">
+                </div>
+                <div class="field" style="min-width: 280px;">
+                    <label for="status">Visualizacao da Grade</label>
+                    <select id="status" name="status">
+                        {% for value, label in status_filter_options %}
+                            <option value="{{ value }}" {% if status_filtro == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <input type="hidden" name="sort" value="{{ sort_by }}">
+                <input type="hidden" name="dir" value="{{ sort_dir }}">
+                <div class="field" style="min-width: 160px;">
+                    <label for="per_page">Itens por Pagina</label>
+                    <select id="per_page" name="per_page">
+                        {% for opt in per_page_options %}
+                            <option value="{{ opt }}" {% if per_page == opt %}selected{% endif %}>{{ opt }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class="btn" type="submit">Aplicar Filtro</button>
+                <a class="btn-secondary" href="{% url 'fila_carregamento' %}?status=ATIVOS&sort=cadastro&dir=desc&per_page=20">Limpar</a>
+            </form>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th><a href="?{{ sort_links.motorista }}">Motorista{% if sort_by == 'motorista' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+                        <th><a href="?{{ sort_links.placa }}">Placa{% if sort_by == 'placa' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+                        <th><a href="?{{ sort_links.distribuidora }}">Distribuidora{% if sort_by == 'distribuidora' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+                        <th><a href="?{{ sort_links.transportador }}">Transportador{% if sort_by == 'transportador' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+                        <th><a href="?{{ sort_links.litragem }}">Litragem s/ excesso{% if sort_by == 'litragem' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+                        <th><a href="?{{ sort_links.ordem }}">Ordem{% if sort_by == 'ordem' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+                        <th><a href="?{{ sort_links.situacao }}">Situacao{% if sort_by == 'situacao' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+                        <th><a href="?{{ sort_links.lacres }}">Lacres{% if sort_by == 'lacres' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+                        <th><a href="?{{ sort_links.cadastro }}">Data/Hora Cadastro{% if sort_by == 'cadastro' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+                        <th>Acoes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for carregamento in carregamentos %}
+                        <tr class="status-{{ carregamento.situacao|lower }}">
+                            <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
+                            <td class="left">{{ carregamento.motorista }}</td>
+                            <td>{{ carregamento.placa|upper }}</td>
+                            <td>{{ carregamento.distribuidora }}</td>
+                            <td>{{ carregamento.transportador }}</td>
+                            <td>{{ carregamento.litragem_sem_excesso }}</td>
+                            <td>{{ carregamento.ordem }}</td>
+                            <td>{{ carregamento.get_situacao_display }}</td>
+                            <td>{{ carregamento.lacres }}</td>
+                            <td>{{ carregamento.data_hora_cadastro|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                <a class="btn-secondary btn-small" href="{% url 'editar_carregamento' carregamento.id %}?{{ query_string }}">Editar</a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="11">Nenhum carregamento encontrado com este filtro.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <span class="page-info">Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }} ({{ page_obj.paginator.count }} registros)</span>
+                <div class="pagination-links">
+                    {% if page_obj.has_previous %}
+                        <a class="page-link" href="?{{ base_query_string }}&page=1">Primeira</a>
+                        <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.previous_page_number }}">Anterior</a>
+                    {% endif %}
+
+                    {% for p in page_obj.paginator.page_range %}
+                        {% if p == page_obj.number %}
+                            <span class="page-link active">{{ p }}</span>
+                        {% elif p >= page_obj.number|add:"-2" and p <= page_obj.number|add:"2" %}
+                            <a class="page-link" href="?{{ base_query_string }}&page={{ p }}">{{ p }}</a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.next_page_number }}">Proxima</a>
+                        <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.paginator.num_pages }}">Ultima</a>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
