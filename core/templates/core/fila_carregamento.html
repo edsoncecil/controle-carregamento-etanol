@@ -340,7 +340,7 @@
                     <input id="q" name="q" type="text" value="{{ busca }}" placeholder="Ex: nome, placa, transportadora, litragem...">
                 </div>
                 <div class="field" style="min-width: 280px;">
-                    <label for="status">Visualizacao da Grade</label>
+                    <label for="status">Visualização da Grade</label>
                     <select id="status" name="status">
                         {% for value, label in status_filter_options %}
                             <option value="{{ value }}" {% if status_filtro == value %}selected{% endif %}>{{ label }}</option>
@@ -350,7 +350,7 @@
                 <input type="hidden" name="sort" value="{{ sort_by }}">
                 <input type="hidden" name="dir" value="{{ sort_dir }}">
                 <div class="field" style="min-width: 160px;">
-                    <label for="per_page">Itens por Pagina</label>
+                    <label for="per_page">Itens por Página</label>
                     <select id="per_page" name="per_page">
                         {% for opt in per_page_options %}
                             <option value="{{ opt }}" {% if per_page == opt %}selected{% endif %}>{{ opt }}</option>
@@ -369,12 +369,12 @@
                         <th><a href="?{{ sort_links.placa }}">Placa{% if sort_by == 'placa' %} ({{ sort_dir|upper }}){% endif %}</a></th>
                         <th><a href="?{{ sort_links.distribuidora }}">Distribuidora{% if sort_by == 'distribuidora' %} ({{ sort_dir|upper }}){% endif %}</a></th>
                         <th><a href="?{{ sort_links.transportador }}">Transportador{% if sort_by == 'transportador' %} ({{ sort_dir|upper }}){% endif %}</a></th>
-                        <th><a href="?{{ sort_links.litragem }}">Litragem s/ excesso{% if sort_by == 'litragem' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+                        <th><a href="?{{ sort_links.litragem }}">Litragem sem excesso{% if sort_by == 'litragem' %} ({{ sort_dir|upper }}){% endif %}</a></th>
                         <th><a href="?{{ sort_links.ordem }}">Ordem{% if sort_by == 'ordem' %} ({{ sort_dir|upper }}){% endif %}</a></th>
-                        <th><a href="?{{ sort_links.situacao }}">Situacao{% if sort_by == 'situacao' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+                        <th><a href="?{{ sort_links.situacao }}">Situação{% if sort_by == 'situacao' %} ({{ sort_dir|upper }}){% endif %}</a></th>
                         <th><a href="?{{ sort_links.lacres }}">Lacres{% if sort_by == 'lacres' %} ({{ sort_dir|upper }}){% endif %}</a></th>
                         <th><a href="?{{ sort_links.cadastro }}">Data/Hora Cadastro{% if sort_by == 'cadastro' %} ({{ sort_dir|upper }}){% endif %}</a></th>
-                        <th>Acoes</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -419,8 +419,8 @@
                     {% endfor %}
 
                     {% if page_obj.has_next %}
-                        <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.next_page_number }}">Proxima</a>
-                        <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.paginator.num_pages }}">Ultima</a>
+                        <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.next_page_number }}">Próxima</a>
+                        <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.paginator.num_pages }}">Última</a>
                     {% endif %}
                 </div>
             </div>

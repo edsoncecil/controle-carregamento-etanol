@@ -5,7 +5,7 @@ from django.utils import timezone
 class Carregamento(models.Model):
     ORDEM_CHOICES = [
         ("SIM", "SIM"),
-        ("NAO TEM", "NAO TEM"),
+        ("NÃO TEM", "NÃO TEM"),
     ]
 
     SITUACAO_CHOICES = [

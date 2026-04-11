@@ -13,7 +13,7 @@ STATUS_FILTER_OPTIONS = [
     ("ATIVOS", "Somente ativos (esconde finalizados)"),
     ("TODOS", "Todos os status"),
     ("CARREGANDO", "Apenas carregando"),
-    ("PATIO", "Apenas patio"),
+    ("PATIO", "Apenas pátio"),
     ("FINALIZADO", "Apenas finalizado"),
 ]
 PER_PAGE_OPTIONS = [10, 20, 50, 100]
