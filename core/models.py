@@ -23,6 +23,8 @@ class Carregamento(models.Model):
     situacao = models.CharField("situacao", max_length=20, choices=SITUACAO_CHOICES)
     lacres = models.IntegerField("lacres")
     data_hora_cadastro = models.DateTimeField("data/hora cadastro", default=timezone.now, editable=False)
+    alterado_por = models.CharField("alterado por", max_length=150, blank=True, default="")
+    data_hora_alteracao = models.DateTimeField("data/hora alteração", null=True, blank=True)
 
     class Meta:
         verbose_name = "carregamento"

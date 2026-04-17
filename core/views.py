@@ -5,6 +5,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from urllib.parse import urlencode
 
 from .forms import CarregamentoForm
@@ -180,7 +181,10 @@ def fila_carregamento(request):
         page = request.POST.get("page", "1")
         form = CarregamentoForm(request.POST)
         if form.is_valid():
-            carregamento = form.save()
+            carregamento = form.save(commit=False)
+            carregamento.alterado_por = str(request.user)
+            carregamento.data_hora_alteracao = timezone.now()
+            carregamento.save()
             messages.success(
                 request,
                 f"Carregamento de {carregamento.motorista} ({carregamento.placa}) cadastrado com sucesso.",
@@ -221,7 +225,10 @@ def editar_carregamento(request, pk):
         page = request.POST.get("page", "1")
         form = CarregamentoForm(request.POST, instance=carregamento)
         if form.is_valid():
-            carregamento = form.save()
+            carregamento = form.save(commit=False)
+            carregamento.alterado_por = str(request.user)
+            carregamento.data_hora_alteracao = timezone.now()
+            carregamento.save()
             messages.success(
                 request,
                 f"Registro de {carregamento.motorista} ({carregamento.placa}) atualizado com sucesso.",

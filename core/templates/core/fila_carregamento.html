@@ -218,6 +218,7 @@
             padding: 9px 8px;
             font-weight: 600;
             text-align: center;
+            text-transform: uppercase;
         }
 
         tbody tr.status-finalizado {
@@ -237,7 +238,8 @@
 
         tbody tr:hover { filter: brightness(0.98) saturate(1.04); }
 
-        .left { text-align: left; }
+        .left { text-align: left; text-transform: uppercase; }
+        .data { text-transform: none; }
 
         .errorlist {
             color: #991b1b;
@@ -378,6 +380,7 @@
                         <th><a href="?{{ sort_links.situacao }}">Situação{% if sort_by == 'situacao' %} ({{ sort_dir|upper }}){% endif %}</a></th>
                         <th><a href="?{{ sort_links.lacres }}">Lacres{% if sort_by == 'lacres' %} ({{ sort_dir|upper }}){% endif %}</a></th>
                         <th><a href="?{{ sort_links.cadastro }}">DATA/HORA CADASTRO{% if sort_by == 'cadastro' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+                        <th>ÚLTIMA ALTERAÇÃO</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
@@ -393,14 +396,21 @@
                             <td>{{ carregamento.ordem }}</td>
                             <td>{{ carregamento.get_situacao_display }}</td>
                             <td>{{ carregamento.lacres }}</td>
-                            <td>{{ carregamento.data_hora_cadastro|date:"d/m/Y H:i" }}</td>
+                            <td class="data">{{ carregamento.data_hora_cadastro|date:"d/m/Y H:i" }}</td>
+                            <td class="data">
+                                {% if carregamento.alterado_por and carregamento.data_hora_alteracao %}
+                                    {{ carregamento.alterado_por|upper }} - {{ carregamento.data_hora_alteracao|date:"d/m/Y H:i" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
                             <td>
                                 <a class="btn-secondary btn-small" href="{% url 'editar_carregamento' carregamento.id %}?{{ query_string }}">Editar</a>
                             </td>
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="11">Nenhum carregamento encontrado com este filtro.</td>
+                            <td colspan="12">Nenhum carregamento encontrado com este filtro.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
