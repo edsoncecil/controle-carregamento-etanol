@@ -114,15 +114,15 @@ def _sanitize_status_filter(raw_status):
 
 
 def _render_fila(
-    request,
-    form,
-    carregamento_em_edicao=None,
-    status_filtro="ATIVOS",
-    busca="",
-    sort_by="cadastro",
-    sort_dir="desc",
-    per_page=20,
-    page=1,
+     request,
+     form,
+     carregamento_em_edicao=None,
+     status_filtro="ATIVOS",
+     busca="",
+     sort_by="cadastro",
+     sort_dir="asc",
+     per_page=20,
+     page=1,
 ):
     carregamentos_qs = _listar_carregamentos(status_filtro, busca, sort_by, sort_dir)
     paginator = Paginator(carregamentos_qs, per_page)
@@ -156,29 +156,29 @@ def _render_fila(
 
 
 def fila_carregamento(request):
-    status_filtro = _sanitize_status_filter(request.GET.get("status", "ATIVOS"))
-    busca = request.GET.get("q", "").strip()
-    sort_by = _sanitize_sort_by(request.GET.get("sort", "cadastro"))
-    sort_dir = _sanitize_sort_dir(request.GET.get("dir", "desc"))
+     status_filtro = _sanitize_status_filter(request.GET.get("status", "ATIVOS"))
+     busca = request.GET.get("q", "").strip()
+     sort_by = _sanitize_sort_by(request.GET.get("sort", "cadastro"))
+     sort_dir = _sanitize_sort_dir(request.GET.get("dir", "asc"))
     per_page = _sanitize_per_page(request.GET.get("per_page", "20"))
     page = request.GET.get("page", "1")
 
-    if request.method == "POST":
-        status_filtro = _sanitize_status_filter(request.POST.get("status_filtro", "ATIVOS"))
-        busca = request.POST.get("busca", "").strip()
-        sort_by = _sanitize_sort_by(request.POST.get("sort_by", "cadastro"))
-        sort_dir = _sanitize_sort_dir(request.POST.get("sort_dir", "desc"))
-        per_page = _sanitize_per_page(request.POST.get("per_page", "20"))
-        page = request.POST.get("page", "1")
-        form = CarregamentoForm(request.POST)
-        if form.is_valid():
-            carregamento = form.save()
-            messages.success(
-                request,
-                f"Carregamento de {carregamento.motorista} ({carregamento.placa}) cadastrado com sucesso.",
-            )
-            query_string = _build_query_string(status_filtro, busca, sort_by, sort_dir, per_page, page)
-            return redirect(f"{reverse('fila_carregamento')}?{query_string}")
+     if request.method == "POST":
+         status_filtro = _sanitize_status_filter(request.POST.get("status_filtro", "ATIVOS"))
+         busca = request.POST.get("busca", "").strip()
+         sort_by = _sanitize_sort_by(request.POST.get("sort_by", "cadastro"))
+         sort_dir = _sanitize_sort_dir(request.POST.get("sort_dir", "asc"))
+         per_page = _sanitize_per_page(request.POST.get("per_page", "20"))
+         page = request.POST.get("page", "1")
+         form = CarregamentoForm(request.POST)
+         if form.is_valid():
+             carregamento = form.save()
+             messages.success(
+                 request,
+                 f"Carregamento de {carregamento.motorista} ({carregamento.placa}) cadastrado com sucesso.",
+             )
+             query_string = _build_query_string(status_filtro, busca, sort_by, sort_dir, per_page, page)
+             return redirect(f"{reverse('fila_carregamento')}?{query_string}")
     else:
         form = CarregamentoForm()
 
@@ -195,30 +195,30 @@ def fila_carregamento(request):
 
 
 def editar_carregamento(request, pk):
-    carregamento = get_object_or_404(Carregamento, pk=pk)
-    status_filtro = _sanitize_status_filter(request.GET.get("status", "ATIVOS"))
-    busca = request.GET.get("q", "").strip()
-    sort_by = _sanitize_sort_by(request.GET.get("sort", "cadastro"))
-    sort_dir = _sanitize_sort_dir(request.GET.get("dir", "desc"))
+     carregamento = get_object_or_404(Carregamento, pk=pk)
+     status_filtro = _sanitize_status_filter(request.GET.get("status", "ATIVOS"))
+     busca = request.GET.get("q", "").strip()
+     sort_by = _sanitize_sort_by(request.GET.get("sort", "cadastro"))
+     sort_dir = _sanitize_sort_dir(request.GET.get("dir", "asc"))
     per_page = _sanitize_per_page(request.GET.get("per_page", "20"))
     page = request.GET.get("page", "1")
 
-    if request.method == "POST":
-        status_filtro = _sanitize_status_filter(request.POST.get("status_filtro", "ATIVOS"))
-        busca = request.POST.get("busca", "").strip()
-        sort_by = _sanitize_sort_by(request.POST.get("sort_by", "cadastro"))
-        sort_dir = _sanitize_sort_dir(request.POST.get("sort_dir", "desc"))
-        per_page = _sanitize_per_page(request.POST.get("per_page", "20"))
-        page = request.POST.get("page", "1")
-        form = CarregamentoForm(request.POST, instance=carregamento)
-        if form.is_valid():
-            carregamento = form.save()
-            messages.success(
-                request,
-                f"Registro de {carregamento.motorista} ({carregamento.placa}) atualizado com sucesso.",
-            )
-            query_string = _build_query_string(status_filtro, busca, sort_by, sort_dir, per_page, page)
-            return redirect(f"{reverse('fila_carregamento')}?{query_string}")
+     if request.method == "POST":
+         status_filtro = _sanitize_status_filter(request.POST.get("status_filtro", "ATIVOS"))
+         busca = request.POST.get("busca", "").strip()
+         sort_by = _sanitize_sort_by(request.POST.get("sort_by", "cadastro"))
+         sort_dir = _sanitize_sort_dir(request.POST.get("sort_dir", "asc"))
+         per_page = _sanitize_per_page(request.POST.get("per_page", "20"))
+         page = request.POST.get("page", "1")
+         form = CarregamentoForm(request.POST, instance=carregamento)
+         if form.is_valid():
+             carregamento = form.save()
+             messages.success(
+                 request,
+                 f"Registro de {carregamento.motorista} ({carregamento.placa}) atualizado com sucesso.",
+             )
+             query_string = _build_query_string(status_filtro, busca, sort_by, sort_dir, per_page, page)
+             return redirect(f"{reverse('fila_carregamento')}?{query_string}")
     else:
         form = CarregamentoForm(instance=carregamento)
 
