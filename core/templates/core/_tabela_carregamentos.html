@@ -1,0 +1,71 @@
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th><a href="?{{ sort_links.motorista }}">Motorista{% if sort_by == 'motorista' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+            <th><a href="?{{ sort_links.placa }}">Placa{% if sort_by == 'placa' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+            <th><a href="?{{ sort_links.distribuidora }}">Distribuidora{% if sort_by == 'distribuidora' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+            <th><a href="?{{ sort_links.transportador }}">Transportador{% if sort_by == 'transportador' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+            <th><a href="?{{ sort_links.litragem }}">Litragem sem excesso{% if sort_by == 'litragem' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+            <th><a href="?{{ sort_links.ordem }}">Ordem{% if sort_by == 'ordem' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+            <th><a href="?{{ sort_links.situacao }}">Situação{% if sort_by == 'situacao' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+            <th><a href="?{{ sort_links.lacres }}">Lacres{% if sort_by == 'lacres' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+            <th><a href="?{{ sort_links.cadastro }}">DATA/HORA CADASTRO{% if sort_by == 'cadastro' %} ({{ sort_dir|upper }}){% endif %}</a></th>
+            <th>ÚLTIMA ALTERAÇÃO</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody class="tabela-corpo">
+        {% for carregamento in carregamentos %}
+            <tr class="status-{{ carregamento.situacao|lower }}">
+                <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
+                <td class="left">{{ carregamento.motorista }}</td>
+                <td>{{ carregamento.placa|upper }}</td>
+                <td>{{ carregamento.distribuidora }}</td>
+                <td>{{ carregamento.transportador }}</td>
+                <td>{{ carregamento.litragem_sem_excesso }}</td>
+                <td>{{ carregamento.ordem }}</td>
+                <td>{{ carregamento.get_situacao_display }}</td>
+                <td>{{ carregamento.lacres }}</td>
+                <td class="data">{{ carregamento.data_hora_cadastro|date:"d/m/Y H:i" }}</td>
+                <td class="data">
+                    {% if carregamento.alterado_por and carregamento.data_hora_alteracao %}
+                        {{ carregamento.alterado_por|upper }} - {{ carregamento.data_hora_alteracao|date:"d/m/Y H:i" }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    <a class="btn-secondary btn-small" href="{% url 'editar_carregamento' carregamento.id %}?{{ query_string }}">Editar</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="12">Nenhum carregamento encontrado com este filtro.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="pagination">
+    <span class="page-info">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }} ({{ page_obj.paginator.count }} registros)</span>
+    <div class="pagination-links">
+        {% if page_obj.has_previous %}
+            <a class="page-link" href="?{{ base_query_string }}&page=1">Primeira</a>
+            <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.previous_page_number }}">Anterior</a>
+        {% endif %}
+
+        {% for p in page_obj.paginator.page_range %}
+            {% if p == page_obj.number %}
+                <span class="page-link active">{{ p }}</span>
+            {% elif p >= page_obj.number|add:"-2" and p <= page_obj.number|add:"2" %}
+                <a class="page-link" href="?{{ base_query_string }}&page={{ p }}">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.next_page_number }}">Próxima</a>
+            <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.paginator.num_pages }}">Última</a>
+        {% endif %}
+    </div>
+</div>

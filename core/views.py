@@ -3,7 +3,9 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
 from urllib.parse import urlencode
@@ -249,3 +251,40 @@ def editar_carregamento(request, pk):
         per_page=per_page,
         page=page,
     )
+
+
+@login_required
+def api_carregamentos(request):
+    status_filtro = _sanitize_status_filter(request.GET.get("status", "ATIVOS"))
+    busca = request.GET.get("q", "").strip()
+    sort_by = _sanitize_sort_by(request.GET.get("sort", "cadastro"))
+    sort_dir = _sanitize_sort_dir(request.GET.get("dir", "asc"))
+    per_page = _sanitize_per_page(request.GET.get("per_page", "20"))
+    page = request.GET.get("page", "1")
+
+    carregamentos_qs = _listar_carregamentos(status_filtro, busca, sort_by, sort_dir)
+    paginator = Paginator(carregamentos_qs, per_page)
+    page_obj = paginator.get_page(page)
+
+    query_string = _build_query_string(status_filtro, busca, sort_by, sort_dir, per_page)
+    sort_links = _build_sort_links(status_filtro, busca, sort_by, sort_dir, per_page)
+
+    html = render_to_string(
+        "core/_tabela_carregamentos.html",
+        {
+            "carregamentos": page_obj.object_list,
+            "page_obj": page_obj,
+            "status_filtro": status_filtro,
+            "status_filter_options": STATUS_FILTER_OPTIONS,
+            "per_page_options": PER_PAGE_OPTIONS,
+            "busca": busca,
+            "sort_by": sort_by,
+            "sort_dir": sort_dir,
+            "per_page": per_page,
+            "sort_links": sort_links,
+            "query_string": query_string,
+            "base_query_string": _build_query_string(status_filtro, busca, sort_by, sort_dir, per_page),
+        },
+    )
+
+    return JsonResponse({"html": html, "success": True})
