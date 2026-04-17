@@ -22,6 +22,9 @@ class Carregamento(models.Model):
         ("18", "18"),
         ("21", "21"),
         ("24", "24"),
+        ("26", "26"),
+        ("28", "28"),
+        ("30", "30"),
     ]
 
     motorista = models.CharField("motorista", max_length=100)
