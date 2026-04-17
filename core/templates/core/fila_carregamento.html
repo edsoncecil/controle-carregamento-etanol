@@ -291,6 +291,10 @@
     </style>
 </head>
 <body>
+    <header style="display:flex; justify-content:space-between; align-items:center; padding:12px 24px; background:var(--card); border-bottom:1px solid var(--line);">
+        <span style="font-size:14px; color:var(--secondary);">Olá, <strong>{{ user.username }}</strong></span>
+        <a href="{% url 'logout' %}" style="color:var(--primary); text-decoration:none; font-size:14px; padding:8px 16px; border:1px solid var(--primary); border-radius:6px;">Sair</a>
+    </header>
     <main class="container">
         <section class="card">
             <h1>Lista de Carregamento de Etanol</h1>

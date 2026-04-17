@@ -54,10 +54,13 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'controle_etanol.urls'
 
+LOGIN_REDIRECT_URL = 'fila_carregamento'
+LOGOUT_REDIRECT_URL = 'login'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
