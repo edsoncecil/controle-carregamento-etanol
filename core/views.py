@@ -191,6 +191,8 @@ def fila_carregamento(request):
                 request,
                 f"Carregamento de {carregamento.motorista} ({carregamento.placa}) cadastrado com sucesso.",
             )
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return JsonResponse({"success": True, "message": f"Carregamento de {carregamento.motorista} ({carregamento.placa}) cadastrado com sucesso."})
             query_string = _build_query_string(status_filtro, busca, sort_by, sort_dir, per_page, page)
             return redirect(f"{reverse('fila_carregamento')}?{query_string}")
     else:
@@ -235,6 +237,8 @@ def editar_carregamento(request, pk):
                 request,
                 f"Registro de {carregamento.motorista} ({carregamento.placa}) atualizado com sucesso.",
             )
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return JsonResponse({"success": True, "message": f"Registro de {carregamento.motorista} ({carregamento.placa}) atualizado com sucesso."})
             query_string = _build_query_string(status_filtro, busca, sort_by, sort_dir, per_page, page)
             return redirect(f"{reverse('fila_carregamento')}?{query_string}")
     else:

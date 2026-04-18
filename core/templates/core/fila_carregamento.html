@@ -335,8 +335,8 @@
         </section>
 
         <section class="card">
-            <h2>{% if carregamento_em_edicao %}Editar Registro{% else %}Novo Cadastro{% endif %}</h2>
-            <form method="post" action="{% if carregamento_em_edicao %}{% url 'editar_carregamento' carregamento_em_edicao.id %}?{{ query_string }}{% else %}{% url 'fila_carregamento' %}{% endif %}" novalidate>
+            <h2 id="form-title">{% if carregamento_em_edicao %}Editar Registro{% else %}Novo Cadastro{% endif %}</h2>
+            <form method="post" id="cadastro-form" action="{% if carregamento_em_edicao %}{% url 'editar_carregamento' carregamento_em_edicao.id %}?{{ query_string }}{% else %}{% url 'fila_carregamento' %}{% endif %}" novalidate>
                 {% csrf_token %}
                 <input type="hidden" name="status_filtro" value="{{ status_filtro }}">
                 <input type="hidden" name="busca" value="{{ busca }}">
@@ -355,10 +355,10 @@
                 </div>
                 <div class="button-row">
                     {% if carregamento_em_edicao %}
-                        <a class="btn-secondary" href="{% url 'fila_carregamento' %}?{{ query_string }}">Cancelar</a>
-                        <button class="btn" type="submit">Atualizar Registro</button>
+                        <a class="btn-secondary" href="{% url 'fila_carregamento' %}?{{ query_string }}" id="btn-cancelar">Cancelar</a>
+                        <button class="btn" type="submit" id="btn-atualizar">Atualizar Registro</button>
                     {% else %}
-                        <button class="btn" type="submit">Salvar na Fila</button>
+                        <button class="btn" type="submit" id="btn-salvar">Salvar na Fila</button>
                     {% endif %}
                 </div>
             </form>
@@ -407,6 +407,25 @@
     <script>
         const API_URL = "{% url 'api_carregamentos' %}";
         let pollingInterval = null;
+        let isEditMode = {{ carregamento_em_edicao|yesno:"true,false" }};
+
+        function resetToNovoCadastro() {
+            isEditMode = false;
+            document.getElementById('form-title').textContent = 'Novo Cadastro';
+            const form = document.getElementById('cadastro-form');
+            form.action = "{% url 'fila_carregamento' %}";
+            if (document.querySelector('[name="motorista"]')) {
+                document.querySelector('[name="motorista"]').value = '';
+                document.querySelector('[name="placa"]').value = '';
+                document.querySelector('[name="distribuidora"]').value = '';
+                document.querySelector('[name="transportador"]').value = '';
+                document.querySelector('[name="litragem_sem_excesso"]').value = '';
+                document.querySelector('[name="ordem"]').value = '';
+                document.querySelector('[name="lacres"]').value = '';
+            }
+            const buttons = document.querySelector('.button-row');
+            buttons.innerHTML = '<button class="btn" type="submit" id="btn-salvar">Salvar na Fila</button>';
+        }
 
         function getFilterParams() {
             const form = document.getElementById('filter-form');
@@ -443,6 +462,12 @@
             }, 20000);
         }
 
+        document.getElementById('btn-cancelar')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            resetToNovoCadastro();
+            window.location.href = this.href;
+        });
+
         document.getElementById('auto_refresh').addEventListener('change', function() {
             if (this.checked) {
                 startPolling();
@@ -476,14 +501,18 @@
             .then(r => r.text())
             .then(html => {
                 updateTabela(true);
-                if (document.querySelector('[name="motorista"]')) {
-                    document.querySelector('[name="motorista"]').value = '';
-                    document.querySelector('[name="placa"]').value = '';
-                    document.querySelector('[name="distribuidora"]').value = '';
-                    document.querySelector('[name="transportador"]').value = '';
-                    document.querySelector('[name="litragem_sem_excesso"]').value = '';
-                    document.querySelector('[name="ordem"]').value = '';
-                    document.querySelector('[name="lacres"]').value = '';
+                if (isEditMode) {
+                    resetToNovoCadastro();
+                } else {
+                    if (document.querySelector('[name="motorista"]')) {
+                        document.querySelector('[name="motorista"]').value = '';
+                        document.querySelector('[name="placa"]').value = '';
+                        document.querySelector('[name="distribuidora"]').value = '';
+                        document.querySelector('[name="transportador"]').value = '';
+                        document.querySelector('[name="litragem_sem_excesso"]').value = '';
+                        document.querySelector('[name="ordem"]').value = '';
+                        document.querySelector('[name="lacres"]').value = '';
+                    }
                 }
                 const msg = document.querySelector('.messages li');
                 if (msg) {
