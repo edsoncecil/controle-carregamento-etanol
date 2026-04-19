@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="2;url=/accounts/login/">
+    <title>Logout - Controle de Carregamento</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "Bahnschrift", "Trebuchet MS", "Segoe UI", sans-serif;
+            background: radial-gradient(circle at 0% 0%, #dff4f8 0%, transparent 35%),
+                        radial-gradient(circle at 100% 100%, #e9ecff 0%, transparent 30%),
+                        #f2f5f8;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .message-container {
+            background: white;
+            border: 1px solid #d6dde6;
+            border-radius: 14px;
+            box-shadow: 0 10px 26px rgba(15, 35, 56, 0.08);
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+        }
+        .checkmark {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(120deg, #10b981 0%, #34d399 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+        }
+        .checkmark::after {
+            content: '✓';
+            color: white;
+            font-size: 30px;
+            font-weight: bold;
+        }
+        h1 {
+            color: #0f3a55;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        p {
+            color: #334155;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="message-container">
+        <div class="checkmark"></div>
+        <h1>Logout realizado com sucesso</h1>
+        <p>Você será redirecionado para a página de login em 2 segundos...</p>
+    </div>
+</body>
+</html>

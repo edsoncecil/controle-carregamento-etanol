@@ -24,7 +24,7 @@ class CarregamentoForm(forms.ModelForm):
             "litragem_sem_excesso": forms.NumberInput(attrs={"min": 0}),
             "ordem": forms.Select(),
             "situacao": forms.Select(),
-            "lacres": forms.NumberInput(attrs={"min": 0}),
+            "lacres": forms.Select(),
         }
 
     def clean_placa(self):

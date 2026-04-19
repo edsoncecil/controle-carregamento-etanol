@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -169,7 +169,8 @@
         .filter-row {
             display: flex;
             gap: 10px;
-            align-items: end;
+            align-items: flex-end;
+            margin-bottom: 24px;
             flex-wrap: wrap;
             margin-top: 12px;
         }
@@ -218,6 +219,7 @@
             padding: 9px 8px;
             font-weight: 600;
             text-align: center;
+            text-transform: uppercase;
         }
 
         tbody tr.status-finalizado {
@@ -237,7 +239,8 @@
 
         tbody tr:hover { filter: brightness(0.98) saturate(1.04); }
 
-        .left { text-align: left; }
+        .left { text-align: left; text-transform: uppercase; }
+        .data { text-transform: none; }
 
         .errorlist {
             color: #991b1b;
@@ -288,9 +291,37 @@
             .container { width: min(1280px, 98%); }
             .card { padding: 14px; }
         }
+
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .loading::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 32px;
+            height: 32px;
+            margin: -16px 0 0 -16px;
+            border: 4px solid var(--primary);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
+    <header style="display:flex; justify-content:space-between; align-items:center; padding:12px 24px; background:var(--card); border-bottom:1px solid var(--line);">
+        <span style="font-size:14px; color:var(--secondary);">Olá, <strong>{{ user.username }}</strong></span>
+        <a href="{% url 'logout' %}" style="color:var(--primary); text-decoration:none; font-size:14px; padding:8px 16px; border:1px solid var(--primary); border-radius:6px;">Sair</a>
+    </header>
     <main class="container">
         <section class="card">
             <h1>Lista de Carregamento de Etanol</h1>
@@ -304,8 +335,8 @@
         </section>
 
         <section class="card">
-            <h2>{% if carregamento_em_edicao %}Editar Registro{% else %}Novo Cadastro{% endif %}</h2>
-            <form method="post" action="{% if carregamento_em_edicao %}{% url 'editar_carregamento' carregamento_em_edicao.id %}?{{ query_string }}{% else %}{% url 'fila_carregamento' %}{% endif %}" novalidate>
+            <h2 id="form-title">{% if carregamento_em_edicao %}Editar Registro{% else %}Novo Cadastro{% endif %}</h2>
+            <form method="post" id="cadastro-form" action="{% if carregamento_em_edicao %}{% url 'editar_carregamento' carregamento_em_edicao.id %}?{{ query_string }}{% else %}{% url 'fila_carregamento' %}{% endif %}" novalidate>
                 {% csrf_token %}
                 <input type="hidden" name="status_filtro" value="{{ status_filtro }}">
                 <input type="hidden" name="busca" value="{{ busca }}">
@@ -324,17 +355,17 @@
                 </div>
                 <div class="button-row">
                     {% if carregamento_em_edicao %}
-                        <a class="btn-secondary" href="{% url 'fila_carregamento' %}?{{ query_string }}">Cancelar</a>
-                        <button class="btn" type="submit">Atualizar Registro</button>
+                        <a class="btn-secondary" href="{% url 'fila_carregamento' %}?{{ query_string }}" id="btn-cancelar">Cancelar</a>
+                        <button class="btn" type="submit" id="btn-atualizar">Atualizar Registro</button>
                     {% else %}
-                        <button class="btn" type="submit">Salvar na Fila</button>
+                        <button class="btn" type="submit" id="btn-salvar">Salvar na Fila</button>
                     {% endif %}
                 </div>
             </form>
-        </section>
+</section>
 
-        <section class="card table-wrap">
-            <form method="get" class="filter-row">
+        <section class="card table-wrap" id="tabela-section">
+            <form method="get" class="filter-row" id="filter-form">
                 <div class="field search-box">
                     <label for="q">Busca na Grade</label>
                     <input id="q" name="q" type="text" value="{{ busca }}" placeholder="Ex: nome, placa, transportadora, litragem...">
@@ -357,74 +388,143 @@
                         {% endfor %}
                     </select>
                 </div>
-                <button class="btn" type="submit">Aplicar Filtro</button>
-                <a class="btn-secondary" href="{% url 'fila_carregamento' %}?status=ATIVOS&sort=cadastro&dir=desc&per_page=20">Limpar</a>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button class="btn" type="submit" style="height: 38px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">Aplicar Filtro</button>
+                    <a class="btn-secondary" href="{% url 'fila_carregamento' %}?status=ATIVOS&sort=cadastro&dir=asc&per_page=20" style="height: 38px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">Limpar</a>
+                    <div style="display: flex; align-items: center; gap: 6px; margin-left: 8px; height: 38px;">
+                        <input type="checkbox" id="auto_refresh" checked style="width: 16px; height: 16px; margin: 0; cursor: pointer;">
+                        <label for="auto_refresh" style="margin: 0; font-size: 0.9rem; font-weight: 600; color: #1f3d56; cursor: pointer;">Auto-atualizar</label>
+                    </div>
+                </div>
             </form>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th><a href="?{{ sort_links.motorista }}">Motorista{% if sort_by == 'motorista' %} ({{ sort_dir|upper }}){% endif %}</a></th>
-                        <th><a href="?{{ sort_links.placa }}">Placa{% if sort_by == 'placa' %} ({{ sort_dir|upper }}){% endif %}</a></th>
-                        <th><a href="?{{ sort_links.distribuidora }}">Distribuidora{% if sort_by == 'distribuidora' %} ({{ sort_dir|upper }}){% endif %}</a></th>
-                        <th><a href="?{{ sort_links.transportador }}">Transportador{% if sort_by == 'transportador' %} ({{ sort_dir|upper }}){% endif %}</a></th>
-                        <th><a href="?{{ sort_links.litragem }}">Litragem sem excesso{% if sort_by == 'litragem' %} ({{ sort_dir|upper }}){% endif %}</a></th>
-                        <th><a href="?{{ sort_links.ordem }}">Ordem{% if sort_by == 'ordem' %} ({{ sort_dir|upper }}){% endif %}</a></th>
-                        <th><a href="?{{ sort_links.situacao }}">Situação{% if sort_by == 'situacao' %} ({{ sort_dir|upper }}){% endif %}</a></th>
-                        <th><a href="?{{ sort_links.lacres }}">Lacres{% if sort_by == 'lacres' %} ({{ sort_dir|upper }}){% endif %}</a></th>
-                        <th><a href="?{{ sort_links.cadastro }}">Data/Hora Cadastro{% if sort_by == 'cadastro' %} ({{ sort_dir|upper }}){% endif %}</a></th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for carregamento in carregamentos %}
-                        <tr class="status-{{ carregamento.situacao|lower }}">
-                            <td>{{ page_obj.start_index|add:forloop.counter0 }}</td>
-                            <td class="left">{{ carregamento.motorista }}</td>
-                            <td>{{ carregamento.placa|upper }}</td>
-                            <td>{{ carregamento.distribuidora }}</td>
-                            <td>{{ carregamento.transportador }}</td>
-                            <td>{{ carregamento.litragem_sem_excesso }}</td>
-                            <td>{{ carregamento.ordem }}</td>
-                            <td>{{ carregamento.get_situacao_display }}</td>
-                            <td>{{ carregamento.lacres }}</td>
-                            <td>{{ carregamento.data_hora_cadastro|date:"d/m/Y H:i" }}</td>
-                            <td>
-                                <a class="btn-secondary btn-small" href="{% url 'editar_carregamento' carregamento.id %}?{{ query_string }}">Editar</a>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="11">Nenhum carregamento encontrado com este filtro.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-            <div class="pagination">
-                <span class="page-info">Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }} ({{ page_obj.paginator.count }} registros)</span>
-                <div class="pagination-links">
-                    {% if page_obj.has_previous %}
-                        <a class="page-link" href="?{{ base_query_string }}&page=1">Primeira</a>
-                        <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.previous_page_number }}">Anterior</a>
-                    {% endif %}
-
-                    {% for p in page_obj.paginator.page_range %}
-                        {% if p == page_obj.number %}
-                            <span class="page-link active">{{ p }}</span>
-                        {% elif p >= page_obj.number|add:"-2" and p <= page_obj.number|add:"2" %}
-                            <a class="page-link" href="?{{ base_query_string }}&page={{ p }}">{{ p }}</a>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if page_obj.has_next %}
-                        <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.next_page_number }}">Próxima</a>
-                        <a class="page-link" href="?{{ base_query_string }}&page={{ page_obj.paginator.num_pages }}">Última</a>
-                    {% endif %}
-                </div>
+            <div id="tabela-container">
+                {% include "core/_tabela_carregamentos.html" %}
             </div>
         </section>
     </main>
+
+    <script>
+        const API_URL = "{% url 'api_carregamentos' %}";
+        let pollingInterval = null;
+        let isEditMode = {{ carregamento_em_edicao|yesno:"true,false" }};
+
+        function resetToNovoCadastro() {
+            isEditMode = false;
+            document.getElementById('form-title').textContent = 'Novo Cadastro';
+            const form = document.getElementById('cadastro-form');
+            form.action = "{% url 'fila_carregamento' %}";
+            if (document.querySelector('[name="motorista"]')) {
+                document.querySelector('[name="motorista"]').value = '';
+                document.querySelector('[name="placa"]').value = '';
+                document.querySelector('[name="distribuidora"]').value = '';
+                document.querySelector('[name="transportador"]').value = '';
+                document.querySelector('[name="litragem_sem_excesso"]').value = '';
+                document.querySelector('[name="ordem"]').value = '';
+                document.querySelector('[name="lacres"]').value = '';
+            }
+            const buttons = document.querySelector('.button-row');
+            buttons.innerHTML = '<button class="btn" type="submit" id="btn-salvar">Salvar na Fila</button>';
+        }
+
+        function getFilterParams() {
+            const form = document.getElementById('filter-form');
+            const params = new URLSearchParams(new FormData(form));
+            return params.toString();
+        }
+
+        function updateTabela(showLoading = true) {
+            const container = document.getElementById('tabela-container');
+            if (showLoading) {
+                container.classList.add('loading');
+            }
+            const params = getFilterParams();
+            fetch(API_URL + '?' + params)
+                .then(r => r.json())
+                .then(data => {
+                    container.innerHTML = data.html;
+                    container.classList.remove('loading');
+                })
+                .catch(() => {
+                    container.classList.remove('loading');
+                });
+        }
+
+        function startPolling() {
+            const checkbox = document.getElementById('auto_refresh');
+            if (!checkbox.checked) return;
+
+            if (pollingInterval) clearInterval(pollingInterval);
+            pollingInterval = setInterval(() => {
+                if (document.getElementById('auto_refresh').checked) {
+                    updateTabela(true);
+                }
+            }, 20000);
+        }
+
+        document.getElementById('btn-cancelar')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            resetToNovoCadastro();
+            window.location.href = this.href;
+        });
+
+        document.getElementById('auto_refresh').addEventListener('change', function() {
+            if (this.checked) {
+                startPolling();
+            } else {
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
+                }
+            }
+        });
+
+        document.getElementById('filter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            updateTabela(true);
+            startPolling();
+        });
+
+        document.querySelector('form[method="post"]').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const form = this;
+            const action = form.action;
+            const formData = new FormData(form);
+
+            fetch(action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(r => r.text())
+            .then(html => {
+                updateTabela(true);
+                if (isEditMode) {
+                    resetToNovoCadastro();
+                } else {
+                    if (document.querySelector('[name="motorista"]')) {
+                        document.querySelector('[name="motorista"]').value = '';
+                        document.querySelector('[name="placa"]').value = '';
+                        document.querySelector('[name="distribuidora"]').value = '';
+                        document.querySelector('[name="transportador"]').value = '';
+                        document.querySelector('[name="litragem_sem_excesso"]').value = '';
+                        document.querySelector('[name="ordem"]').value = '';
+                        document.querySelector('[name="lacres"]').value = '';
+                    }
+                }
+                const msg = document.querySelector('.messages li');
+                if (msg) {
+                    setTimeout(() => msg.remove(), 3000);
+                }
+            })
+            .catch(err => {
+                form.submit();
+            });
+        });
+
+        startPolling();
+    </script>
 </body>
 </html>

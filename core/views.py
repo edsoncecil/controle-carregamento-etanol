@@ -1,12 +1,22 @@
 from django.contrib import messages
+from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
 from urllib.parse import urlencode
 
 from .forms import CarregamentoForm
 from .models import Carregamento
+
+
+def logout_view(request):
+    logout(request)
+    return render(request, "registration/logged_out.html")
 
 
 STATUS_FILTER_OPTIONS = [
@@ -120,7 +130,7 @@ def _render_fila(
     status_filtro="ATIVOS",
     busca="",
     sort_by="cadastro",
-    sort_dir="desc",
+    sort_dir="asc",
     per_page=20,
     page=1,
 ):
@@ -155,11 +165,12 @@ def _render_fila(
     )
 
 
+@login_required
 def fila_carregamento(request):
     status_filtro = _sanitize_status_filter(request.GET.get("status", "ATIVOS"))
     busca = request.GET.get("q", "").strip()
     sort_by = _sanitize_sort_by(request.GET.get("sort", "cadastro"))
-    sort_dir = _sanitize_sort_dir(request.GET.get("dir", "desc"))
+    sort_dir = _sanitize_sort_dir(request.GET.get("dir", "asc"))
     per_page = _sanitize_per_page(request.GET.get("per_page", "20"))
     page = request.GET.get("page", "1")
 
@@ -167,16 +178,21 @@ def fila_carregamento(request):
         status_filtro = _sanitize_status_filter(request.POST.get("status_filtro", "ATIVOS"))
         busca = request.POST.get("busca", "").strip()
         sort_by = _sanitize_sort_by(request.POST.get("sort_by", "cadastro"))
-        sort_dir = _sanitize_sort_dir(request.POST.get("sort_dir", "desc"))
+        sort_dir = _sanitize_sort_dir(request.POST.get("sort_dir", "asc"))
         per_page = _sanitize_per_page(request.POST.get("per_page", "20"))
         page = request.POST.get("page", "1")
         form = CarregamentoForm(request.POST)
         if form.is_valid():
-            carregamento = form.save()
+            carregamento = form.save(commit=False)
+            carregamento.alterado_por = str(request.user)
+            carregamento.data_hora_alteracao = timezone.now()
+            carregamento.save()
             messages.success(
                 request,
                 f"Carregamento de {carregamento.motorista} ({carregamento.placa}) cadastrado com sucesso.",
             )
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return JsonResponse({"success": True, "message": f"Carregamento de {carregamento.motorista} ({carregamento.placa}) cadastrado com sucesso."})
             query_string = _build_query_string(status_filtro, busca, sort_by, sort_dir, per_page, page)
             return redirect(f"{reverse('fila_carregamento')}?{query_string}")
     else:
@@ -194,12 +210,13 @@ def fila_carregamento(request):
     )
 
 
+@login_required
 def editar_carregamento(request, pk):
     carregamento = get_object_or_404(Carregamento, pk=pk)
     status_filtro = _sanitize_status_filter(request.GET.get("status", "ATIVOS"))
     busca = request.GET.get("q", "").strip()
     sort_by = _sanitize_sort_by(request.GET.get("sort", "cadastro"))
-    sort_dir = _sanitize_sort_dir(request.GET.get("dir", "desc"))
+    sort_dir = _sanitize_sort_dir(request.GET.get("dir", "asc"))
     per_page = _sanitize_per_page(request.GET.get("per_page", "20"))
     page = request.GET.get("page", "1")
 
@@ -207,16 +224,21 @@ def editar_carregamento(request, pk):
         status_filtro = _sanitize_status_filter(request.POST.get("status_filtro", "ATIVOS"))
         busca = request.POST.get("busca", "").strip()
         sort_by = _sanitize_sort_by(request.POST.get("sort_by", "cadastro"))
-        sort_dir = _sanitize_sort_dir(request.POST.get("sort_dir", "desc"))
+        sort_dir = _sanitize_sort_dir(request.POST.get("sort_dir", "asc"))
         per_page = _sanitize_per_page(request.POST.get("per_page", "20"))
         page = request.POST.get("page", "1")
         form = CarregamentoForm(request.POST, instance=carregamento)
         if form.is_valid():
-            carregamento = form.save()
+            carregamento = form.save(commit=False)
+            carregamento.alterado_por = str(request.user)
+            carregamento.data_hora_alteracao = timezone.now()
+            carregamento.save()
             messages.success(
                 request,
                 f"Registro de {carregamento.motorista} ({carregamento.placa}) atualizado com sucesso.",
             )
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                return JsonResponse({"success": True, "message": f"Registro de {carregamento.motorista} ({carregamento.placa}) atualizado com sucesso."})
             query_string = _build_query_string(status_filtro, busca, sort_by, sort_dir, per_page, page)
             return redirect(f"{reverse('fila_carregamento')}?{query_string}")
     else:
@@ -233,3 +255,40 @@ def editar_carregamento(request, pk):
         per_page=per_page,
         page=page,
     )
+
+
+@login_required
+def api_carregamentos(request):
+    status_filtro = _sanitize_status_filter(request.GET.get("status", "ATIVOS"))
+    busca = request.GET.get("q", "").strip()
+    sort_by = _sanitize_sort_by(request.GET.get("sort", "cadastro"))
+    sort_dir = _sanitize_sort_dir(request.GET.get("dir", "asc"))
+    per_page = _sanitize_per_page(request.GET.get("per_page", "20"))
+    page = request.GET.get("page", "1")
+
+    carregamentos_qs = _listar_carregamentos(status_filtro, busca, sort_by, sort_dir)
+    paginator = Paginator(carregamentos_qs, per_page)
+    page_obj = paginator.get_page(page)
+
+    query_string = _build_query_string(status_filtro, busca, sort_by, sort_dir, per_page)
+    sort_links = _build_sort_links(status_filtro, busca, sort_by, sort_dir, per_page)
+
+    html = render_to_string(
+        "core/_tabela_carregamentos.html",
+        {
+            "carregamentos": page_obj.object_list,
+            "page_obj": page_obj,
+            "status_filtro": status_filtro,
+            "status_filter_options": STATUS_FILTER_OPTIONS,
+            "per_page_options": PER_PAGE_OPTIONS,
+            "busca": busca,
+            "sort_by": sort_by,
+            "sort_dir": sort_dir,
+            "per_page": per_page,
+            "sort_links": sort_links,
+            "query_string": query_string,
+            "base_query_string": _build_query_string(status_filtro, busca, sort_by, sort_dir, per_page),
+        },
+    )
+
+    return JsonResponse({"html": html, "success": True})
