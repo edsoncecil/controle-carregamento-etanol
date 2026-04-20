@@ -17,6 +17,7 @@ class Carregamento(models.Model):
     LACRE_CHOICES = [
         ("3", "3"),
         ("6", "6"),
+        ("9", "9"),
         ("12", "12"),
         ("15", "15"),
         ("18", "18"),
