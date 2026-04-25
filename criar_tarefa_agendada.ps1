@@ -1,5 +1,5 @@
 $taskName = "Django_Balanca"
-$scriptPath = "C:\Users\edson\Downloads\balanca\iniciar_balanca.bat"
+$scriptPath = "C:\ProjetoFilaCarregamento\iniciar_balanca.bat"
 $description = "Inicia o Django controle_etanol automaticamente"
 
 $action = New-ScheduledTaskAction -Execute $scriptPath

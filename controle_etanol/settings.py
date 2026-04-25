@@ -25,7 +25,12 @@ SECRET_KEY = '91)hv23j^u(*2#ea-04))!$-69peb*8=*pf16y18^ybgppvhbc'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['192.168.0.25', '192.168.0.*', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['192.168.0.14', '192.168.0.25', '192.168.0.*', 'localhost', '127.0.0.1', '.usinavicentina.com.br']
+
+# Se você já tiver um domínio próprio no Cloudflare, adicione-o aqui:
+# ALLOWED_HOSTS += ['seu-sistema.seu-dominio.com']
+
+CSRF_TRUSTED_ORIGINS = ['https://*.usinavicentina.com.br']
 
 
 # Application definition

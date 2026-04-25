@@ -307,6 +307,143 @@
             height: 32px;
             margin: -16px 0 0 -16px;
             border: 4px solid var(--primary);
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .search-box {
+            min-width: 320px;
+            flex: 1;
+        }
+
+        .table-wrap { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 1180px;
+            border: 1px solid #d4dce6;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        thead th {
+            background: linear-gradient(180deg, #124e63 0%, #0f3f52 100%);
+            color: #effbff;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            padding: 11px 8px;
+            border-right: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        thead th a {
+            color: inherit;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+        }
+
+        thead th a:hover {
+            text-decoration: underline;
+        }
+
+        tbody td {
+            border-right: 1px solid #d4dce6;
+            border-top: 1px solid #d4dce6;
+            padding: 9px 8px;
+            font-weight: 600;
+            text-align: center;
+            text-transform: uppercase;
+        }
+
+        tbody tr.status-finalizado {
+            background: var(--status-finalizado);
+            box-shadow: inset 4px 0 0 var(--status-finalizado-border);
+        }
+
+        tbody tr.status-carregando {
+            background: var(--status-carregando);
+            box-shadow: inset 4px 0 0 var(--status-carregando-border);
+        }
+
+        tbody tr.status-patio {
+            background: var(--status-patio);
+            box-shadow: inset 4px 0 0 var(--status-patio-border);
+        }
+
+        tbody tr:hover { filter: brightness(0.98) saturate(1.04); }
+
+        .left { text-align: left; text-transform: uppercase; }
+        .data { text-transform: none; }
+
+        .errorlist {
+            color: #991b1b;
+            margin: 4px 0 0;
+            padding-left: 16px;
+            font-size: 0.85rem;
+        }
+
+        .pagination {
+            margin-top: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-links {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .page-link {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid #c8d4e2;
+            text-decoration: none;
+            color: #12344c;
+            background: #f8fbff;
+            font-weight: 600;
+        }
+
+        .page-link.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .page-info {
+            font-size: 0.9rem;
+            color: #2a4b66;
+            font-weight: 600;
+        }
+
+        @media (max-width: 760px) {
+            .container { width: min(1280px, 98%); }
+            .card { padding: 14px; }
+        }
+
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .loading::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 32px;
+            height: 32px;
+            margin: -16px 0 0 -16px;
+            border: 4px solid var(--primary);
             border-top-color: transparent;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
@@ -314,6 +451,195 @@
 
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        /* ── Modal Relatório ────────────────────────────────────────── */
+        .btn-report {
+            background: linear-gradient(135deg, #166534 0%, #15803d 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            height: 38px;
+            box-shadow: 0 4px 12px rgba(21, 128, 61, 0.35);
+            transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+            font-family: inherit;
+            font-size: 0.9rem;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-report:hover {
+            background: linear-gradient(135deg, #14532d 0%, #166534 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(21, 128, 61, 0.45);
+        }
+
+        /* Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 28, 40, 0.55);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        /* Card do modal */
+        .modal-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 28px 32px;
+            width: min(480px, 92vw);
+            box-shadow: 0 24px 60px rgba(7, 28, 40, 0.28);
+            animation: modalIn 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.88) translateY(12px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-title {
+            margin: 0 0 6px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #073b4c;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .modal-subtitle {
+            font-size: 0.88rem;
+            color: #64748b;
+            margin: 0 0 22px;
+        }
+
+        .modal-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .modal-field label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1f3d56;
+            margin-bottom: 5px;
+        }
+
+        .modal-field input[type="date"] {
+            width: 100%;
+            padding: 9px 10px;
+            border: 1px solid #b9c8d8;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: #f8fbff;
+            color: #102235;
+            outline: none;
+            transition: border-color 120ms, box-shadow 120ms;
+            box-sizing: border-box;
+        }
+
+        .modal-field input[type="date"]:focus {
+            border-color: #0e7490;
+            box-shadow: 0 0 0 3px rgba(14, 116, 144, 0.18);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .btn-download-xlsx {
+            background: linear-gradient(135deg, #166534 0%, #15803d 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            box-shadow: 0 4px 10px rgba(21, 128, 61, 0.3);
+            transition: transform 120ms, box-shadow 120ms, background 120ms;
+        }
+
+        .btn-download-xlsx:hover {
+            background: linear-gradient(135deg, #14532d 0%, #166534 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(21, 128, 61, 0.4);
+        }
+
+        .btn-download-pdf {
+            background: linear-gradient(135deg, #991b1b 0%, #b91c1c 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-family: inherit;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            box-shadow: 0 4px 10px rgba(185, 28, 28, 0.3);
+            transition: transform 120ms, box-shadow 120ms, background 120ms;
+        }
+
+        .btn-download-pdf:hover {
+            background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(185, 28, 28, 0.4);
+        }
+
+        .btn-modal-fechar {
+            background: none;
+            border: 1px solid #c8d4e2;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-weight: 600;
+            font-family: inherit;
+            font-size: 0.9rem;
+            color: #334155;
+            cursor: pointer;
+            transition: background 120ms;
+        }
+
+        .btn-modal-fechar:hover {
+            background: #f1f5f9;
+        }
+
+        .modal-error {
+            display: none;
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            margin-bottom: 12px;
         }
     </style>
 </head>
@@ -388,9 +714,13 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <button class="btn" type="submit" style="height: 38px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">Aplicar Filtro</button>
                     <a class="btn-secondary" href="{% url 'fila_carregamento' %}?status=ATIVOS&sort=cadastro&dir=asc&per_page=20" style="height: 38px; display: flex; align-items: center; justify-content: center; box-sizing: border-box;">Limpar</a>
+                    <button type="button" class="btn-report" id="btn-abrir-relatorio">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0-3-3m3 3 3-3M3 17a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5ZM8 9V7a4 4 0 1 1 8 0v2"/></svg>
+                        Gerar Relatório
+                    </button>
                     <div style="display: flex; align-items: center; gap: 6px; margin-left: 8px; height: 38px;">
                         <input type="checkbox" id="auto_refresh" checked style="width: 16px; height: 16px; margin: 0; cursor: pointer;">
                         <label for="auto_refresh" style="margin: 0; font-size: 0.9rem; font-weight: 600; color: #1f3d56; cursor: pointer;">Auto-atualizar</label>
@@ -403,6 +733,42 @@
             </div>
         </section>
     </main>
+
+    <!-- ── Modal Relatório ──────────────────────────────────────────────── -->
+    <div class="modal-overlay" id="modal-relatorio" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+        <div class="modal-card">
+            <h2 class="modal-title" id="modal-titulo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#0e7490" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6M4 20h16a1 1 0 0 0 1-1V5a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1Z"/></svg>
+                Gerar Relatório
+            </h2>
+            <p class="modal-subtitle">Selecione o período e escolha o formato de exportação.</p>
+
+            <div class="modal-error" id="modal-erro">Por favor, preencha as duas datas antes de continuar.</div>
+
+            <div class="modal-fields">
+                <div class="modal-field">
+                    <label for="relatorio-data-inicio">Data Início</label>
+                    <input type="date" id="relatorio-data-inicio">
+                </div>
+                <div class="modal-field">
+                    <label for="relatorio-data-fim">Data Fim</label>
+                    <input type="date" id="relatorio-data-fim">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-modal-fechar" id="btn-fechar-relatorio">Cancelar</button>
+                <button type="button" class="btn-download-xlsx" id="btn-baixar-xlsx">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0-3-3m3 3 3-3M3 17a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5ZM8 9V7a4 4 0 1 1 8 0v2"/></svg>
+                    Baixar XLSX
+                </button>
+                <button type="button" class="btn-download-pdf" id="btn-baixar-pdf">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0-3-3m3 3 3-3M3 17a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v5ZM8 9V7a4 4 0 1 1 8 0v2"/></svg>
+                    Baixar PDF
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const API_URL = "{% url 'api_carregamentos' %}";
@@ -525,6 +891,78 @@
         });
 
         startPolling();
+
+        /* ── Modal Relatório ─────────────────────────────────────────── */
+        const modalOverlay  = document.getElementById('modal-relatorio');
+        const modalErro     = document.getElementById('modal-erro');
+        const inputInicio   = document.getElementById('relatorio-data-inicio');
+        const inputFim      = document.getElementById('relatorio-data-fim');
+
+        const URL_XLSX = "{% url 'relatorio_xlsx' %}";
+        const URL_PDF  = "{% url 'relatorio_pdf' %}";
+
+        // Pré-preencher datas com o mês atual
+        (function preencherDatas() {
+            const hoje = new Date();
+            const ano  = hoje.getFullYear();
+            const mes  = String(hoje.getMonth() + 1).padStart(2, '0');
+            const dia  = String(hoje.getDate()).padStart(2, '0');
+            inputFim.value   = `${ano}-${mes}-${dia}`;
+            inputInicio.value = `${ano}-${mes}-01`;
+        })();
+
+        function abrirModal() {
+            modalOverlay.classList.add('active');
+            modalErro.style.display = 'none';
+            inputInicio.focus();
+        }
+
+        function fecharModal() {
+            modalOverlay.classList.remove('active');
+        }
+
+        function validarDatas() {
+            if (!inputInicio.value || !inputFim.value) {
+                modalErro.style.display = 'block';
+                return false;
+            }
+            if (inputInicio.value > inputFim.value) {
+                modalErro.textContent = 'A data de início não pode ser maior que a data de fim.';
+                modalErro.style.display = 'block';
+                return false;
+            }
+            modalErro.style.display = 'none';
+            return true;
+        }
+
+        function buildUrl(base) {
+            return `${base}?data_inicio=${inputInicio.value}&data_fim=${inputFim.value}`;
+        }
+
+        document.getElementById('btn-abrir-relatorio').addEventListener('click', abrirModal);
+        document.getElementById('btn-fechar-relatorio').addEventListener('click', fecharModal);
+
+        // Fechar ao clicar fora do card
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) fecharModal();
+        });
+
+        // Fechar com Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') fecharModal();
+        });
+
+        document.getElementById('btn-baixar-xlsx').addEventListener('click', function() {
+            if (!validarDatas()) return;
+            window.location.href = buildUrl(URL_XLSX);
+            setTimeout(fecharModal, 600);
+        });
+
+        document.getElementById('btn-baixar-pdf').addEventListener('click', function() {
+            if (!validarDatas()) return;
+            window.location.href = buildUrl(URL_PDF);
+            setTimeout(fecharModal, 600);
+        });
     </script>
 </body>
 </html>
